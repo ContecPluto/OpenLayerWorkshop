@@ -1,0 +1,30 @@
+{
+  "name": "ol-workshop",
+  "description": "OpenLayers workshop",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "^5.2.0",
+    "colormap": "^2.3.2",
+    "d3": "^7.8.2",
+    "kompas": "^0.0.1",
+    "ol": "^7.3.0",
+    "ol-mapbox-style": "^9.0.0",
+    "plotly.js-dist": "^2.18.2"
+  },
+  "eslintConfig": {
+    "extends": "openlayers"
+  },
+  "scripts": {
+    "lint": "eslint main.js examples",
+    "test": "npm run lint",
+    "start": "vite serve",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "eslint": "^8.22.0",
+    "eslint-config-openlayers": "^16.2.3",
+    "vite": "^3.0.9",
+    "vite-plugin-static-copy": "^0.7.0"
+  }
+}
