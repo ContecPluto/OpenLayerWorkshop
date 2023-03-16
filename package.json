@@ -10,7 +10,8 @@
     "kompas": "^0.0.1",
     "ol": "^7.3.0",
     "ol-mapbox-style": "^9.0.0",
-    "plotly.js-dist": "^2.18.2"
+    "plotly.js-dist": "^2.18.2",
+    "pmtiles": "^2.7.1"
   },
   "eslintConfig": {
     "extends": "openlayers"

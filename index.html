@@ -1,70 +1,157 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>PMTiles Shaded Relief</title>
-  <link rel="stylesheet" href="node_modules/ol/ol.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css">
-  <style>
-    .map {
-      width: 100%;
-      height: 400px;
-    }
-    table.controls td {
-      padding: 2px 5px;
-    }
-    table.controls td:nth-child(3) {
-      text-align: right;
-      min-width: 3em;
-    }
-  </style>
+    <!--
+        Copyright (c) 2018 Jean-Marc VIGLINO,
+        released under CeCILL-B (french BSD like) licence: http://www.cecill.info/
+    -->
+    <title>ol-ext: Dijkstra short path</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <meta name="description" content="Add a routing control to your map." />
+    <meta name="keywords" content="ol3, control, search, routing" />
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- jQuery -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <!-- IE 9 bug on ajax tranport  -->
+    <!--[if lte IE 9]>
+    <script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.3/jquery.xdomainrequest.min.js'></script>
+    <![endif]-->
+    <script type="module" src="main.js"></script>
+
+    <!-- Openlayers -->
+    <link rel="stylesheet" href="https://openlayers.org/en/latest/legacy/ol.css" />
+    <script type="text/javascript" src="https://openlayers.org/en/latest/legacy/ol.js"></script>
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL,Object.assign"></script>
+
+    <!-- ol-ext -->
+    <link rel="stylesheet" href="./ol-ext.css" />
+    <!-- Pointer events polyfill for old browsers, see https://caniuse.com/#feat=pointer -->
+    <script src="https://unpkg.com/elm-pep"></script>
+
+
+    <link rel="stylesheet" href="./style.css"/>
+    <style>
+        .loading {
+            position: fixed;
+            color: #666;
+            top: 30%;
+            left: 50%;
+            background: #fff;
+            font-size: 2em;
+            padding: 1em;
+            z-index: 10;
+            box-shadow: 1px 1px 10px 2px rgba(0,0,0,.5);
+            border-radius: 3px;
+            transform: translateX(-50%);
+        }
+        .loading .fa {
+            vertical-align: middle;
+            font-size: 1.5em;
+        }
+        .options ul {
+            margin: 0;
+            padding: 0;
+        }
+        .speed label {
+            display: inline-block;
+            width: 5.5em;
+            text-align: right;
+        }
+        input[type="number"] {
+            width: 3em;
+        }
+    </style>
 </head>
-<body>
-  <div id="map" class="map">
-    <div id="info"></div>
-  </div>
+<body >
+<a href="https://github.com/Viglino/ol-ext" class="icss-github-corner"><i></i></a>
 
-  <form>
-    <label for="type">Geometry type &nbsp;</label>
-    <select id="type">
-      <option value="Point">Point</option>
-      <option value="LineString">LineString</option>
-      <option value="Polygon">Polygon</option>
-    </select>
-  </form>
-  <table class="controls">
-    <tr>
-      <td>elevation</td>
-      <td colspan="2" id="elevationOut"></td>
-    </tr>
-    <tr>
-      <td>location</td>
-      <td colspan="2" id="locationOut"></td>
-    </tr>
-    <tr>
-      <td><label for="vert">vertical exaggeration:</label></td>
-      <td><input id="vert" type="range" min="5" max="50" value="10"/></td>
-      <td><span id="vertOut"></span> x</td>
-    </tr>
-    <tr>
-      <td><label for="sunEl">sun elevation:</label></td>
-      <td><input id="sunEl" type="range" `min="0" max="90" value="45"/></td>
-      <td><span id="sunElOut"></span> °</td>
-    </tr>
-    <tr>
-      <td><label for="sunAz">sun azimuth:</label></td>
-      <td><input id="sunAz" type="range" min="0" max="360" value="45"/></td>
-      <td><span id="sunAzOut"></span> °</td>
-    </tr>
-  </table>
+<a href="../../index.html">
+    <h1>ol-ext: Dijkstra short path</h1>
+</a>
+<div class=loading>
+    <i class="fa fa fa-spinner fa-pulse"></i> Loading data...
+</div>
+
+<div class="info">
+    <p>
+        The <i>ol/graph/Dijkstra</i> use the
+        <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Dijkstra's algorithm</a>
+        for finding the shortest paths between nodes in a ol/source/Vector (with LineString geometry features).
+        <br/>
+        It uses a A* optimisation.
+    </p>
+    <p>
+        You can overwrite methods to customize the result:
+    <ul>
+        <li>
+            <i>getLength()</i> method enable you to specify an other distance calculation.
+        </li>
+        <li>
+            <i>weight()</i> method enable weighting on the graph, for example calculate a speed factor on the edges.
+        </li>
+        <li>
+            <i>direction()</i> method can defined the direction of the edges (-1, 0, 1 or 2).
+        </li>
+    </ul>
+    </p>
+
+    <p>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Logo-licence-ouverte2.svg" style="float:left; height:3em; margin-right:.5em;"/>
+        <img src="https://static.data.gouv.fr/avatars/1b/e4985396724faf9f6e1122baa7b65c.gif" style="float:left; height:3em; margin-right:.5em; background:#fff;"/>
+        The graph used in this example is <a href="https://www.data.gouv.fr/fr/datasets/route-120/">ROUTE 120&reg;</a>,
+        an opensource (Open licence) database from IGN-France.
+    </p>
+</div>
+
+<!-- DIV pour la carte -->
+<div id="map" style="width:600px; height:400px;"></div>
+
+<div class="options">
+    <h2>Options</h2>
+    <ul>
+        <li>
+            While calculating:<br/>
+            <label><input name="view" type="radio" checked onclick="nodes.setVisible(true)"> show nodes</label>
+            <br/>
+            <label><input id="path" name="view" type="radio" onclick="nodes.setVisible(false)"> show path</label>
+        </li>
+        <li>
+            <hr/>
+            <label><input id="speed" type="checkbox" onchange="calcSpeed()"> Use speed:</label>
+            <div class="speed">
+                <label>highway:</label> <input id="A" type="number" value=120 onchange="calcSpeed()" />
+                <br/>
+                <label>main:</label> <input id="P" type="number" value=80 onchange="calcSpeed()" />
+                <br/>
+                <label>regional:</label> <input id="R" type="number" value=70 onchange="calcSpeed()" />
+                <br/>
+                <label>local:</label> <input id="L" type="number" value=60 onchange="calcSpeed()" />
+            </div>
+        </li>
+    </ul>
+</div>
+<p>Click points on the map!</p>
+<p id="warning" style="background:#f80; color:#fff; padding:.5em; display:none; float:left;">
+    Ugh! it's a bit long!
+    <br/>
+    Try to go on searching...dijkstra
+</p>
+<p id="notfound" style="background:#f80; color:#fff; padding:.5em; display:none; float:left;">
+    Sorry, there is no route to go there!
+</p>
+<p id="notfound0" style="background:#f80; color:#fff; padding:.5em; display:none; float:left;">
+    You're allready there!
+</p>
+<p id="result" style="background:#0b0; color:#fff; padding:.5em; display:none; float:left;">
+    Found it!
+    <br/>
+    Distance: <span></span>.
+</p>
 
 
-  <div id="tester" style="width:600px;height:250px;"></div>
-  <!-- Pointer events polyfill for old browsers, see https://caniuse.com/#feat=pointer -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/elm-pep@1.0.6/dist/elm-pep.js"></script>
-  <script src="https://unpkg.com/pmtiles@2.4.0/dist/index.js"></script>
-
-  <script type="module" src="main.js"></script>
 </body>
 </html>
