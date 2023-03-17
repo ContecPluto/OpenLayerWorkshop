@@ -67,91 +67,95 @@
     </style>
 </head>
 <body >
-<a href="https://github.com/Viglino/ol-ext" class="icss-github-corner"><i></i></a>
+    <a href="https://github.com/Viglino/ol-ext" class="icss-github-corner"><i></i></a>
 
-<a href="../../index.html">
-    <h1>ol-ext: Dijkstra short path</h1>
-</a>
-<div class=loading>
-    <i class="fa fa fa-spinner fa-pulse"></i> Loading data...
-</div>
+    <a href="../../index.html">
+        <h1>ol-ext: Dijkstra short path</h1>
+    </a>
 
-<div class="info">
-    <p>
-        The <i>ol/graph/Dijkstra</i> use the
-        <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Dijkstra's algorithm</a>
-        for finding the shortest paths between nodes in a ol/source/Vector (with LineString geometry features).
-        <br/>
-        It uses a A* optimisation.
-    </p>
-    <p>
-        You can overwrite methods to customize the result:
-    <ul>
-        <li>
-            <i>getLength()</i> method enable you to specify an other distance calculation.
-        </li>
-        <li>
-            <i>weight()</i> method enable weighting on the graph, for example calculate a speed factor on the edges.
-        </li>
-        <li>
-            <i>direction()</i> method can defined the direction of the edges (-1, 0, 1 or 2).
-        </li>
-    </ul>
-    </p>
+    <div class=loading>
+        <i class="fa fa fa-spinner fa-pulse"></i> Loading data...
+    </div>
 
-    <p>
-        <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Logo-licence-ouverte2.svg" style="float:left; height:3em; margin-right:.5em;"/>
-        <img src="https://static.data.gouv.fr/avatars/1b/e4985396724faf9f6e1122baa7b65c.gif" style="float:left; height:3em; margin-right:.5em; background:#fff;"/>
-        The graph used in this example is <a href="https://www.data.gouv.fr/fr/datasets/route-120/">ROUTE 120&reg;</a>,
-        an opensource (Open licence) database from IGN-France.
-    </p>
-</div>
-
-<!-- DIV pour la carte -->
-<div id="map" style="width:600px; height:400px;"></div>
-
-<div class="options">
-    <h2>Options</h2>
-    <ul>
-        <li>
-            While calculating:<br/>
-            <label><input name="view" type="radio" checked onclick="nodes.setVisible(true)"> show nodes</label>
+    <div class="info">
+        <p>
+            The <i>ol/graph/Dijkstra</i> use the
+            <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Dijkstra's algorithm</a>
+            for finding the shortest paths between nodes in a ol/source/Vector (with LineString geometry features).
             <br/>
-            <label><input id="path" name="view" type="radio" onclick="nodes.setVisible(false)"> show path</label>
-        </li>
-        <li>
-            <hr/>
-            <label><input id="speed" type="checkbox" onchange="calcSpeed()"> Use speed:</label>
-            <div class="speed">
-                <label>highway:</label> <input id="A" type="number" value=120 onchange="calcSpeed()" />
-                <br/>
-                <label>main:</label> <input id="P" type="number" value=80 onchange="calcSpeed()" />
-                <br/>
-                <label>regional:</label> <input id="R" type="number" value=70 onchange="calcSpeed()" />
-                <br/>
-                <label>local:</label> <input id="L" type="number" value=60 onchange="calcSpeed()" />
-            </div>
-        </li>
-    </ul>
-</div>
-<p>Click points on the map!</p>
-<p id="warning" style="background:#f80; color:#fff; padding:.5em; display:none; float:left;">
-    Ugh! it's a bit long!
-    <br/>
-    Try to go on searching...dijkstra
-</p>
-<p id="notfound" style="background:#f80; color:#fff; padding:.5em; display:none; float:left;">
-    Sorry, there is no route to go there!
-</p>
-<p id="notfound0" style="background:#f80; color:#fff; padding:.5em; display:none; float:left;">
-    You're allready there!
-</p>
-<p id="result" style="background:#0b0; color:#fff; padding:.5em; display:none; float:left;">
-    Found it!
-    <br/>
-    Distance: <span></span>.
-</p>
+            It uses a A* optimisation.
+        </p>
+        <p>
+            You can overwrite methods to customize the result:
+            <ul>
+                <li>
+                    <i>getLength()</i> method enable you to specify an other distance calculation.
+                </li>
+                <li>
+                    <i>weight()</i> method enable weighting on the graph, for example calculate a speed factor on the edges.
+                </li>
+                <li>
+                    <i>direction()</i> method can defined the direction of the edges (-1, 0, 1 or 2).
+                </li>
+            </ul>
+        </p>
 
+        <p>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/1/18/Logo-licence-ouverte2.svg" style="float:left; height:3em; margin-right:.5em;"/>
+            <img src="https://static.data.gouv.fr/avatars/1b/e4985396724faf9f6e1122baa7b65c.gif" style="float:left; height:3em; margin-right:.5em; background:#fff;"/>
+            The graph used in this example is <a href="https://www.data.gouv.fr/fr/datasets/route-120/">ROUTE 120&reg;</a>,
+            an opensource (Open licence) database from IGN-France.
+        </p>
+    </div>
 
+    <!-- DIV pour la carte -->
+    <div id="map" style="width:600px; height:400px;"></div>
+
+    <div class="options">
+        <h2>Options</h2>
+        <ul>
+            <li>
+                While calculating:<br/>
+                <label><input name="view" type="radio" checked onclick="nodes.setVisible(true)"> show nodes</label>
+                <br/>
+                <label><input id="path" name="view" type="radio" onclick="nodes.setVisible(false)"> show path</label>
+            </li>
+            <li>
+                <hr/>
+                <label><input id="speed" type="checkbox" onchange="calcSpeed()"> Use speed:</label>
+                <div class="speed">
+                    <label>highway:</label> <input id="A" type="number" value=120 onchange="calcSpeed()" />
+                    <br/>
+                    <label>main:</label> <input id="P" type="number" value=80 onchange="calcSpeed()" />
+                    <br/>
+                    <label>regional:</label> <input id="R" type="number" value=70 onchange="calcSpeed()" />
+                    <br/>
+                    <label>local:</label> <input id="L" type="number" value=60 onchange="calcSpeed()" />
+                </div>
+            </li>
+            <li>
+                <button id="addWeight">
+                    가중치 추가 버튼
+                </button>
+            </li>
+        </ul>
+    </div>
+    <p>Click points on the map!</p>
+    <p id="warning" style="background:#f80; color:#fff; padding:.5em; display:none; float:left;">
+        Ugh! it's a bit long!
+        <br/>
+        Try to go on searching...dijkstra
+    </p>
+    <p id="notfound" style="background:#f80; color:#fff; padding:.5em; display:none; float:left;">
+        Sorry, there is no route to go there!
+    </p>
+    <p id="notfound0" style="background:#f80; color:#fff; padding:.5em; display:none; float:left;">
+        You're allready there!
+    </p>
+    <p id="result" style="background:#0b0; color:#fff; padding:.5em; display:none; float:left;">
+        Found it!
+        <br/>
+        Distance: <span></span>.
+    </p>
 </body>
 </html>

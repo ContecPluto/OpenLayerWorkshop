@@ -4,12 +4,85 @@ import Dijskra from './Dijskra';
 import GeoJSON from 'ol/format/GeoJSON';
 import {Circle, Fill, Stroke, Style} from 'ol/style';
 import {Map, View} from 'ol';
-import {Stamen, Vector as VectorSource} from 'ol/source';
+import {Vector as VectorSource, XYZ} from 'ol/source';
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
 import {unByKey} from 'ol/Observable';
-
 import ol_Overlay_Placemark from './Placemark.js';
 import {getLength} from 'ol/sphere';
+
+import {
+  Select,
+  defaults as defaultInteractions,
+} from 'ol/interaction.js';
+
+// 테스트 코드
+const overlayStyle = (function () {
+  const styles = {};
+  styles['Polygon'] = [
+    new Style({
+      fill: new Fill({
+        color: [255, 255, 255, 0.5],
+      }),
+    }),
+    new Style({
+      stroke: new Stroke({
+        color: [255, 255, 255, 1],
+        width: 5,
+      }),
+    }),
+    new Style({
+      stroke: new Stroke({
+        color: [0, 255, 0, 1],
+        width: 3,
+      }),
+    }),
+  ];
+  styles['MultiPolygon'] = styles['Polygon'];
+
+  styles['LineString'] = [
+    new Style({
+      stroke: new Stroke({
+        color: [255, 255, 255, 1],
+        width: 5,
+      }),
+    }),
+    new Style({
+      stroke: new Stroke({
+        color: [0, 255, 0, 1],
+        width: 3,
+      }),
+    }),
+  ];
+  styles['MultiLineString'] = styles['LineString'];
+
+  styles['Point'] = [
+    new Style({
+      image: new Circle({
+        radius: 7,
+        fill: new Fill({
+          color: [0, 255, 0, 1],
+        }),
+        stroke: new Stroke({
+          color: [255, 255, 255, 0.75],
+          width: 1.5,
+        }),
+      }),
+      zIndex: 100000,
+    }),
+  ];
+  styles['MultiPoint'] = styles['Point'];
+
+  styles['GeometryCollection'] = styles['Polygon'].concat(styles['Point']);
+
+  return function (feature) {
+    return styles[feature.getGeometry().getType()];
+  };
+})();
+
+const select = new Select({
+  style: overlayStyle,
+})
+// end 테스트 코드
 
 let speed = {A: 1, P: 1, R: 1, L: 1};
 function calcSpeed() {
@@ -27,14 +100,20 @@ calcSpeed();
 // Layers
 const layers = [
   new TileLayer({
-    source: new Stamen({
-      layer: 'watercolor',
+    source: new XYZ({
+      url: 'http://mt0.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&hl=kr',
+      crossOrigin: 'anonymous',
     }),
   }),
 ];
 
+// http://mt0.google.com/vt/lyrs=y&x=219&y=100&z=8
+// http://mt0.google.com/vt/lyrs=y&x=219&y=100&z=9
+// http://mt0.google.com/vt/lyrs=y&x=329&y=22&z=6&hl=kr
+
 // The map
 const map = new Map({
+  interactions: defaultInteractions().extend([select]),
   target: 'map',
   view: new View({
     zoom: 6,
@@ -138,6 +217,9 @@ dijkstra.on('calculating', function (e) {
 // Get the weight of an edge
 dijkstra.weight = function (feature) {
   const type = feature ? feature.get('type') : 'A';
+  if (feature && feature.get('weight')) {
+    return feature.get('weight')
+  }
   if (!speed[type]) {
     console.error(type);
   }
@@ -170,6 +252,8 @@ const nodes = new VectorLayer({
 map.addLayer(nodes);
 
 
+
+
 // Start / end Placemark
 const popStart = new ol_Overlay_Placemark({popupClass: 'flagv', color: '#080'});
 map.addOverlay(popStart);
@@ -179,16 +263,25 @@ const popEnd = new ol_Overlay_Placemark({
 });
 map.addOverlay(popEnd);
 
+
+
+
 // Manage start / end on click
 let start, end;
 map.on('click', function (e) {
+
+});
+
+function mapstart (coor) {
   if (!start) {
-    start = e.coordinate;
-    popStart.show(start);
+    start = coor
+    // start = e.coordinate;
+    popStart.show(coor);
   } else {
-    popEnd.show(e.coordinate);
+    // popEnd.show(e.coordinate);
+    popEnd.show(coor);
     setTimeout(function () {
-      const se = dijkstra.path(start, e.coordinate);
+      const se = dijkstra.path(start, coor);
       if (se) {
         start = se[0];
         end = se[1];
@@ -197,4 +290,14 @@ map.on('click', function (e) {
       }
     }, 100);
   }
-});
+}
+
+mapstart([-183579.2892892051, 5390479.626496713]);
+mapstart([610006.9948723416, 5583440.724252656]);
+
+// 가중치 부여
+$('#addWeight').on('click', function () {
+  const wLine = select.getFeatures().array_[0];
+  wLine.set('weight', 10000)
+  dijkstra.path([-183579.2892892051, 5390479.626496713], [610006.9948723416, 5583440.724252656])
+})
